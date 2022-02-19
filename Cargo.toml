@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 chrono = "0.4.19"
 clap = "2.34.0"
+zip = "0.5.13"
