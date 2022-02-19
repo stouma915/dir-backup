@@ -47,5 +47,5 @@ fn main() {
     }
 
     let start_time = util::current_timestamp();
-    println!("Start: {}", util::parse_unix_epoch(start_time))
+    println!("Start: {}", util::parse_timestamp(start_time))
 }
