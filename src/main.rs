@@ -127,7 +127,7 @@ fn main() {
             }
         },
         Err(err) => {
-            println!("{}", err);
+            println!("Failed to backup: {}", err);
             exit(1);
         }
     }
