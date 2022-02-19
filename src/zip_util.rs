@@ -7,9 +7,14 @@ use zip::ZipWriter;
 pub fn write_zip(
     mut writer: ZipWriter<File>,
     entries: Vec<DirEntry>,
+    quickly: bool,
 ) -> Result<ZipWriter<File>, String> {
-    let options =
-        zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Bzip2);
+    let method = if quickly {
+        zip::CompressionMethod::Stored
+    } else {
+        zip::CompressionMethod::Bzip2
+    };
+    let options = zip::write::FileOptions::default().compression_method(method);
 
     for entry in entries {
         let entry_name = String::from(entry.path().as_path().to_str().unwrap());
@@ -48,7 +53,7 @@ pub fn write_zip(
                         println!("Complete: {}", &entry_name);
 
                         let dir_entries: Vec<DirEntry> = paths.map(|x| x.unwrap()).collect();
-                        match write_zip(writer, dir_entries) {
+                        match write_zip(writer, dir_entries, quickly) {
                             Ok(w) => writer = w,
                             Err(err) => return Err(err),
                         }

@@ -34,10 +34,17 @@ fn main() {
                 .short("t")
                 .takes_value(true),
         )
+        .arg(
+            Arg::with_name("quickly")
+                .help("Speed up by not compressing.")
+                .long("quickly")
+                .short("q"),
+        )
         .get_matches();
 
     let source = matches.value_of("source").unwrap();
     let destination = matches.value_of("destination").unwrap();
+    let quickly = matches.is_present("quickly");
 
     let parsed_threshold = matches.value_of("threshold").unwrap_or("50").parse::<u32>();
     if parsed_threshold.is_err() {
@@ -118,7 +125,7 @@ fn main() {
     let entries: Vec<DirEntry> = fs::read_dir(source).unwrap().map(|x| x.unwrap()).collect();
     let zip_writer = zip::ZipWriter::new(zip_file);
 
-    match zip_util::write_zip(zip_writer, entries) {
+    match zip_util::write_zip(zip_writer, entries, quickly) {
         Ok(mut writer) => match writer.finish() {
             Ok(_) => (),
             _ => {
