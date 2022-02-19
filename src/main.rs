@@ -1,4 +1,5 @@
 use std::fs;
+use std::fs::DirEntry;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 
@@ -42,7 +43,7 @@ fn main() {
         println!("Please specify the threshold value numerically.");
         exit(2);
     }
-    let threshold = parsed_threshold.unwrap();
+    let threshold = parsed_threshold.unwrap() as usize;
     if threshold < 1 {
         println!("Please specify a threshold value of 1 or more.");
         exit(2);
@@ -68,6 +69,32 @@ fn main() {
     if source_canonical == destination_canonical {
         println!("The source directory and destination must be different.");
         exit(2);
+    }
+
+    let mut backup_files: Vec<DirEntry> = fs::read_dir(destination)
+        .unwrap()
+        .map(|x| x.unwrap())
+        .filter(|x| !x.metadata().unwrap().is_dir())
+        .collect();
+    backup_files.sort_by_key(|x| x.metadata().unwrap().created().unwrap());
+    if backup_files.len() >= threshold {
+        let files_to_remove = &backup_files[0..(backup_files.len() - (threshold - 1))];
+        for file in files_to_remove {
+            match fs::remove_file(file.path()) {
+                Ok(()) => (),
+                _ => (),
+            }
+        }
+
+        let files: Vec<DirEntry> = fs::read_dir(destination)
+            .unwrap()
+            .map(|x| x.unwrap())
+            .filter(|x| !x.metadata().unwrap().is_dir())
+            .collect();
+        if files.len() >= threshold {
+            println!("The old backup couldn't be removed.");
+            exit(1);
+        }
     }
 
     let start_time = util::current_timestamp();
