@@ -1,3 +1,4 @@
+use std::path::Path;
 use std::process::exit;
 
 use clap::{App, Arg};
@@ -43,6 +44,21 @@ fn main() {
     let threshold = parsed_threshold.unwrap();
     if threshold < 1 {
         println!("Please specify a threshold value of 1 or more.");
+        exit(2);
+    }
+
+    if !Path::new(source).exists() || !Path::new(source).is_dir() {
+        println!(
+            "The source directory '{}' does not exist or isn't a directory.",
+            source
+        );
+        exit(2);
+    }
+    if !Path::new(destination).exists() || !Path::new(destination).is_dir() {
+        println!(
+            "The destination directory '{}' does not exist or isn't a directory.",
+            destination
+        );
         exit(2);
     }
 
