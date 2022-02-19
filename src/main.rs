@@ -1,4 +1,5 @@
-use std::path::Path;
+use std::fs;
+use std::path::{Path, PathBuf};
 use std::process::exit;
 
 use clap::{App, Arg};
@@ -59,6 +60,13 @@ fn main() {
             "The destination directory '{}' does not exist or isn't a directory.",
             destination
         );
+        exit(2);
+    }
+
+    let source_canonical = fs::canonicalize(PathBuf::from(source)).unwrap();
+    let destination_canonical = fs::canonicalize(PathBuf::from(destination)).unwrap();
+    if source_canonical == destination_canonical {
+        println!("The source directory and destination must be different.");
         exit(2);
     }
 
