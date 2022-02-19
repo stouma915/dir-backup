@@ -98,5 +98,10 @@ fn main() {
     }
 
     let start_time = util::current_timestamp();
-    println!("Start: {}", util::parse_timestamp(start_time))
+    println!("Start: {}", util::parse_timestamp(start_time));
+
+    let done_time = util::current_timestamp();
+    let elapsed = done_time - start_time;
+    println!("Done: {}", util::parse_timestamp(done_time));
+    println!("Elapsed: {}s", elapsed);
 }
