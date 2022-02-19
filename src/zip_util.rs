@@ -2,6 +2,7 @@ use std::fs;
 use std::fs::{DirEntry, File};
 use std::io::{BufReader, Read, Write};
 
+use colored::Colorize;
 use zip::ZipWriter;
 
 pub fn write_zip(
@@ -29,28 +30,41 @@ pub fn write_zip(
 
                             match reader.read_to_end(&mut buffer) {
                                 Ok(_) => match writer.write(&*buffer) {
-                                    Ok(_) => println!("Complete: {}", &entry_name),
+                                    Ok(_) => {
+                                        println!("{} {}", "Complete:".bright_blue(), &entry_name)
+                                    }
                                     _ => println!(
-                                        "WARNING: Couldn't backup {}: Cannot write",
+                                        "{} Couldn't backup {}: Cannot write",
+                                        "WARNING:".yellow(),
                                         &entry_name
                                     ),
                                 },
                                 _ => println!(
-                                    "WARNING: Couldn't backup {}: Cannot read",
+                                    "{} Couldn't backup {}: Cannot read",
+                                    "WARNING:".yellow(),
                                     &entry_name
                                 ),
                             }
                         }
-                        _ => println!("WARNING: Couldn't backup {}: Cannot open", &entry_name),
+                        _ => println!(
+                            "{} Couldn't backup {}: Cannot open",
+                            "WARNING:".yellow(),
+                            &entry_name
+                        ),
                     };
                 }
-                Err(err) => println!("WARNING: Couldn't backup {}: {:?}", &entry_name, err),
+                Err(err) => println!(
+                    "{} Couldn't backup {}: {:?}",
+                    "WARNING:".yellow(),
+                    &entry_name,
+                    err
+                ),
             }
         } else {
             match writer.add_directory(&entry_name, options) {
                 Ok(_) => match fs::read_dir(&entry_name) {
                     Ok(paths) => {
-                        println!("Complete: {}", &entry_name);
+                        println!("{} {}", "Complete:".bright_blue(), &entry_name);
 
                         let dir_entries: Vec<DirEntry> = paths.map(|x| x.unwrap()).collect();
                         match write_zip(writer, dir_entries, quickly) {
@@ -58,9 +72,19 @@ pub fn write_zip(
                             Err(err) => return Err(err),
                         }
                     }
-                    Err(err) => println!("WARNING: Couldn't backup {}: {:?}", &entry_name, err),
+                    Err(err) => println!(
+                        "{} Couldn't backup {}: {:?}",
+                        "WARNING:".yellow(),
+                        &entry_name,
+                        err
+                    ),
                 },
-                Err(err) => println!("WARNING: Couldn't backup {}: {:?}", &entry_name, err),
+                Err(err) => println!(
+                    "{} Couldn't backup {}: {:?}",
+                    "WARNING:".yellow(),
+                    &entry_name,
+                    err
+                ),
             }
         }
     }

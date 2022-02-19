@@ -4,11 +4,17 @@ use std::path::{Path, PathBuf};
 use std::process::exit;
 
 use clap::{App, Arg};
+use colored::Colorize;
 
 mod util;
 mod zip_util;
 
 fn main() {
+    #[cfg(target_os = "windows")]
+    if ansi_term::enable_ansi_support().is_ok() {
+        colored::control::set_override(true);
+    }
+
     let matches = App::new("dir-backup")
         .version(option_env!("CARGO_PKG_VERSION").unwrap_or("unknown"))
         .arg(
@@ -60,14 +66,14 @@ fn main() {
     if !Path::new(source).exists() || !Path::new(source).is_dir() {
         println!(
             "The source directory '{}' does not exist or isn't a directory.",
-            source
+            source.yellow()
         );
         exit(2);
     }
     if !Path::new(destination).exists() || !Path::new(destination).is_dir() {
         println!(
             "The destination directory '{}' does not exist or isn't a directory.",
-            destination
+            destination.yellow()
         );
         exit(2);
     }
@@ -106,14 +112,16 @@ fn main() {
     }
 
     let start_time = util::current_timestamp();
-    println!("Start: {}", util::parse_timestamp(start_time));
+    println!(
+        "{} {}",
+        "Start:".bright_green(),
+        util::parse_timestamp(start_time)
+    );
 
     let zip_file_name = util::parse_timestamp(util::current_timestamp())
         .replace(" ", "_")
         .replace(":", "-")
         + ".zip";
-
-    println!("Creating {}", zip_file_name);
     let zip_file = match fs::File::create(Path::new(destination).join(Path::new(&zip_file_name))) {
         Ok(x) => x,
         Err(err) => {
@@ -121,10 +129,10 @@ fn main() {
             exit(1);
         }
     };
-    println!("Reading {}", source);
-    let entries: Vec<DirEntry> = fs::read_dir(source).unwrap().map(|x| x.unwrap()).collect();
-    let zip_writer = zip::ZipWriter::new(zip_file);
 
+    let entries: Vec<DirEntry> = fs::read_dir(source).unwrap().map(|x| x.unwrap()).collect();
+
+    let zip_writer = zip::ZipWriter::new(zip_file);
     match zip_util::write_zip(zip_writer, entries, quickly) {
         Ok(mut writer) => match writer.finish() {
             Ok(_) => (),
@@ -141,6 +149,10 @@ fn main() {
 
     let done_time = util::current_timestamp();
     let elapsed = done_time - start_time;
-    println!("Done: {}", util::parse_timestamp(done_time));
-    println!("Elapsed: {}s", elapsed);
+    println!(
+        "{} {}",
+        "Done:".bright_green(),
+        util::parse_timestamp(done_time)
+    );
+    println!("{} {}s", "Elapsed:".bright_green(), elapsed);
 }
