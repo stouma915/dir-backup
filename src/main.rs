@@ -10,11 +10,6 @@ mod util;
 mod zip_util;
 
 fn main() {
-    #[cfg(target_os = "windows")]
-    if ansi_term::enable_ansi_support().is_ok() {
-        colored::control::set_override(true);
-    }
-
     let matches = App::new("dir-backup")
         .version(option_env!("CARGO_PKG_VERSION").unwrap_or("unknown"))
         .arg(
