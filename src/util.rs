@@ -1,7 +1,13 @@
-use std::time::{SystemTime, SystemTimeError, UNIX_EPOCH};
+use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 
-pub fn current_epoch_milli() -> Result<u128, SystemTimeError> {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|duration| duration.as_millis())
+pub fn current_timestamp() -> i64 {
+    Local::now().timestamp()
+}
+
+pub fn parse_unix_epoch(millis: i64) -> String {
+    let naive = NaiveDateTime::from_timestamp(millis, 0);
+    let datetime = DateTime::<Local>::from_utc(naive, Local.offset_from_utc_datetime(&naive));
+    let formatted = datetime.format("%a %b %e %T %Y");
+
+    formatted.to_string()
 }

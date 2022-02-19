@@ -1,4 +1,3 @@
-use chrono::NaiveDateTime;
 use std::process::exit;
 
 use clap::{App, Arg};
@@ -46,4 +45,7 @@ fn main() {
         println!("Please specify a threshold value of 1 or more.");
         exit(2);
     }
+
+    let start_time = util::current_timestamp();
+    println!("Start: {}", util::parse_unix_epoch(start_time))
 }
