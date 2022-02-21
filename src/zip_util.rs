@@ -10,14 +10,9 @@ use crate::util;
 pub fn write_zip(
     mut writer: ZipWriter<File>,
     entries: Vec<DirEntry>,
-    quickly: bool,
 ) -> Result<ZipWriter<File>, String> {
-    let method = if quickly {
-        zip::CompressionMethod::Stored
-    } else {
-        zip::CompressionMethod::Bzip2
-    };
-    let options = zip::write::FileOptions::default().compression_method(method);
+    let options =
+        zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
 
     for entry in entries {
         let entry_name = entry.path().into_os_string().into_string().unwrap();
@@ -49,7 +44,7 @@ pub fn write_zip(
                         println!("{} {}", "Complete:".bright_blue(), &entry_name);
 
                         let dir_entries: Vec<DirEntry> = paths.map(|x| x.unwrap()).collect();
-                        match write_zip(writer, dir_entries, quickly) {
+                        match write_zip(writer, dir_entries) {
                             Ok(w) => writer = w,
                             Err(err) => return Err(err),
                         }
