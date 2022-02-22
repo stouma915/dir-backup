@@ -121,19 +121,13 @@ fn main() {
     let entries: Vec<DirEntry> = fs::read_dir(source).unwrap().map(|x| x.unwrap()).collect();
 
     let zip_writer = zip::ZipWriter::new(zip_file);
-    match zip_util::write_zip(zip_writer, entries) {
-        Ok(mut writer) => match writer.finish() {
-            Ok(_) => (),
-            _ => {
-                println!("The backup couldn't be created.");
-                exit(1);
-            }
-        },
-        Err(err) => {
-            println!("Failed to backup: {}", err);
+    match zip_util::write_zip(zip_writer, entries).finish() {
+        Ok(_) => (),
+        _ => {
+            println!("The backup couldn't be created.");
             exit(1);
         }
-    }
+    };
 
     let done_time = util::current_timestamp();
     let elapsed = done_time - start_time;

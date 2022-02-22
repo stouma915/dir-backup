@@ -15,10 +15,7 @@ const OPTIONS: Lazy<FileOptions> = Lazy::new(|| {
         .large_file(true)
 });
 
-pub fn write_zip(
-    mut writer: ZipWriter<File>,
-    entries: Vec<DirEntry>,
-) -> Result<ZipWriter<File>, String> {
+pub fn write_zip(mut writer: ZipWriter<File>, entries: Vec<DirEntry>) -> ZipWriter<File> {
     for entry in entries {
         let entry_name = entry.path().into_os_string().into_string().unwrap();
 
@@ -49,10 +46,7 @@ pub fn write_zip(
                         println!("{} {}", "Complete:".bright_blue(), &entry_name);
 
                         let dir_entries: Vec<DirEntry> = paths.map(|x| x.unwrap()).collect();
-                        match write_zip(writer, dir_entries) {
-                            Ok(w) => writer = w,
-                            Err(err) => return Err(err),
-                        }
+                        writer = write_zip(writer, dir_entries);
                     }
                     Err(err) => skip_warn(&entry_name, err),
                 },
@@ -68,7 +62,7 @@ pub fn write_zip(
         }
     }
 
-    Ok(writer)
+    writer
 }
 
 fn skip_warn(entry_name: &String, error: Error) -> () {
