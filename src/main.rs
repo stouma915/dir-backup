@@ -78,7 +78,7 @@ fn main() {
         .map(|x| x.unwrap())
         .filter(|x| !x.metadata().unwrap().is_dir())
         .collect();
-    backup_files.sort_by_key(|x| x.metadata().unwrap().created().unwrap());
+    backup_files.sort_by_key(|x| x.file_name());
     if backup_files.len() >= threshold {
         let files_to_remove = &backup_files[0..(backup_files.len() - (threshold - 1))];
         for file in files_to_remove {
