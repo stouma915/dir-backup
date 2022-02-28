@@ -1,4 +1,5 @@
-use std::fs::File;
+use std::fs;
+use std::fs::{DirEntry, File};
 use std::io::{BufReader, Read, Result};
 use std::path::PathBuf;
 
@@ -14,6 +15,16 @@ pub fn parse_timestamp(millis: i64) -> String {
     let formatted = datetime.format("%a %b %e %T %Y");
 
     formatted.to_string()
+}
+
+pub fn get_backup_files(path: PathBuf) -> Result<Vec<DirEntry>> {
+    match fs::read_dir(path) {
+        Ok(paths) => Ok(paths
+            .map(|x| x.unwrap())
+            .filter(|x| !x.metadata().unwrap().is_dir())
+            .collect()),
+        Err(err) => Err(err),
+    }
 }
 
 pub fn read_bytes(path: PathBuf) -> Result<Vec<u8>> {

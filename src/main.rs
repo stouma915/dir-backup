@@ -73,31 +73,41 @@ fn main() {
         exit(2);
     }
 
+    match util::get_backup_files(PathBuf::from(destination)) {
+        Ok(mut backup_files) => {
+            backup_files.sort_by_key(|x| x.file_name());
+
+            if backup_files.len() >= threshold {
+                let files_to_remove = &backup_files[0..(backup_files.len() - (threshold - 1))];
+                for file in files_to_remove {
+                    match fs::remove_file(file.path()) {
+                        Ok(()) => (),
+                        _ => (),
+                    }
+                }
+
+                let files: Vec<DirEntry> = fs::read_dir(destination)
+                    .unwrap()
+                    .map(|x| x.unwrap())
+                    .filter(|x| !x.metadata().unwrap().is_dir())
+                    .collect();
+                if files.len() >= threshold {
+                    println!("The old backup couldn't be removed.");
+                    exit(1);
+                }
+            }
+        }
+        Err(err) => {
+            println!("Failed to get backup files: {:?}", err);
+            exit(1);
+        }
+    }
     let mut backup_files: Vec<DirEntry> = fs::read_dir(destination)
         .unwrap()
         .map(|x| x.unwrap())
         .filter(|x| !x.metadata().unwrap().is_dir())
         .collect();
     backup_files.sort_by_key(|x| x.file_name());
-    if backup_files.len() >= threshold {
-        let files_to_remove = &backup_files[0..(backup_files.len() - (threshold - 1))];
-        for file in files_to_remove {
-            match fs::remove_file(file.path()) {
-                Ok(()) => (),
-                _ => (),
-            }
-        }
-
-        let files: Vec<DirEntry> = fs::read_dir(destination)
-            .unwrap()
-            .map(|x| x.unwrap())
-            .filter(|x| !x.metadata().unwrap().is_dir())
-            .collect();
-        if files.len() >= threshold {
-            println!("The old backup couldn't be removed.");
-            exit(1);
-        }
-    }
 
     let start_time = util::current_timestamp();
     println!(
