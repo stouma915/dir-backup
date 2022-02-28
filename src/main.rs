@@ -102,12 +102,6 @@ fn main() {
             exit(1);
         }
     }
-    let mut backup_files: Vec<DirEntry> = fs::read_dir(destination)
-        .unwrap()
-        .map(|x| x.unwrap())
-        .filter(|x| !x.metadata().unwrap().is_dir())
-        .collect();
-    backup_files.sort_by_key(|x| x.file_name());
 
     let start_time = util::current_timestamp();
     println!(
