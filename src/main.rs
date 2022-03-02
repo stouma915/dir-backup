@@ -127,8 +127,8 @@ fn main() {
     let zip_writer = zip::ZipWriter::new(zip_file);
     match zip_util::write_zip(zip_writer, entries).finish() {
         Ok(_) => (),
-        _ => {
-            println!("The backup couldn't be created.");
+        Err(err) => {
+            println!("The backup couldn't be created: {:?}", err);
             exit(1);
         }
     };
