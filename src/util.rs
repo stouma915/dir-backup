@@ -37,10 +37,10 @@ pub fn get_backup_files(path: PathBuf) -> Result<Vec<DirEntry>> {
     }
 }
 
-pub fn is_backup_file(file_name: OsString) -> bool {
-    let name = file_name.into_string().unwrap();
+pub fn is_backup_file(os_file_name: OsString) -> bool {
+    let file_name = os_file_name.into_string().unwrap();
 
-    BACKUP_FILE_NAME_REGEX.is_match(&name)
+    BACKUP_FILE_NAME_REGEX.is_match(&file_name)
 }
 
 pub fn read_bytes(path: PathBuf) -> Result<Vec<u8>> {
